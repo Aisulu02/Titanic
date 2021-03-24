@@ -1,10 +1,10 @@
 import java.util.*;
 
-public class FordFulkerson {
+public class Main {
   static final int V = 6;
 
  
-  boolean bfs(int Graph[][], int s, int t, int p[]) {
+    static boolean bfs(int Graph[][], int s, int t, int p[]) {
     boolean visited[] = new boolean[V];
     for (int i = 0; i < V; ++i)
       visited[i] = false;
@@ -29,7 +29,7 @@ public class FordFulkerson {
     return (visited[t] == true);
   }
 
-  int fordFulkerson(int graph[][], int s, int t) {
+  int maxflow(int graph[][], int s, int t) {
     int u, v;
     int Graph[][] = new int[V][V];
 
@@ -61,13 +61,60 @@ public class FordFulkerson {
 
     return max_flow;
   }
-
+  private static String minCut(int[][] graph, int s, int t) {
+        int u,v;
+          
+        
+        int[][] rGraph = new int[graph.length][graph.length]; 
+        for (int i = 0; i < graph.length; i++) {
+            for (int j = 0; j < graph.length; j++) {
+                rGraph[i][j] = graph[i][j];
+            }
+        }
+  
+        int[] parent = new int[graph.length]; 
+        
+        while (bfs(rGraph, s, t, parent)) {
+              
+           
+            int pathFlow = Integer.MAX_VALUE;         
+            for (v = t; v != s; v = parent[v]) {
+                u = parent[v];
+                pathFlow = Math.min(pathFlow, rGraph[u][v]);
+            }
+            for (v = t; v != s; v = parent[v]) {
+                u = parent[v];
+                rGraph[u][v] = rGraph[u][v] - pathFlow;
+                rGraph[v][u] = rGraph[v][u] + pathFlow;
+            }
+        }
+        boolean[] isVisited = new boolean[graph.length];     
+        dfs(rGraph, s, isVisited);
+        for (int i = 0; i < graph.length; i++) {
+            for (int j = 0; j < graph.length; j++) {
+                if (graph[i][j] > 0 && isVisited[i] && !isVisited[j]) {
+                    return (i + " - " + j);
+                }
+            }
+        }
+        return null; 
+    }
+    private static void dfs(int[][] rGraph, int s,
+                                boolean[] visited) {
+        visited[s] = true;
+        for (int i = 0; i < rGraph.length; i++) {
+                if (rGraph[s][i] > 0 && !visited[i]) {
+                    dfs(rGraph, i, visited);
+                }
+        }
+    }
   public static void main(String[] args) throws java.lang.Exception {
     int graph[][] = new int[][] { { 0, 8, 0, 0, 3, 0 }, { 0, 0, 9, 0, 0, 0 }, { 0, 0, 0, 0, 7, 2 },
         { 0, 0, 0, 0, 0, 5 }, { 0, 0, 7, 4, 0, 0 }, { 0, 0, 0, 0, 0, 0 } };
-    FordFulkerson m = new FordFulkerson();
+    Main m = new Main();
 
-    System.out.println("Max Flow: " + m.fordFulkerson(graph, 0, 5));
+    System.out.println("Max Flow: " + m.maxflow(graph, 0, 5));
+    System.out.println("Min Cut:  " + m.minCut(graph, 0, 5));
 
   }
 }
